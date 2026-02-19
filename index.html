@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>のんびりタウン ～ほのぼの人生ゲーム～</title>
+    <link rel="stylesheet" href="style.css?v=231">
+</head>
+<body>
+    <div class="game-container">
+        <main class="game-main">
+            <!-- みんなのつぶやき -->
+            <section class="tweet-section">
+                <img src="mintubu.png" alt="みんなのつぶやき" class="tweet-header-img">
+                <div class="tweet-list" id="tweetList">
+                    <!-- JavaScriptで生成 -->
+                </div>
+            </section>
+
+            <!-- 街マップ -->
+            <section class="map-section">
+                <!-- マップビュー -->
+                <div id="mapView">
+                    <div class="map-container">
+                        <div class="map-wrapper">
+                            <!-- ホバー時の施設説明 -->
+                            <div class="place-info-box" id="placeInfoBox">マスにカーソルを合わせると説明が表示されます</div>
+                            <div class="map-labels-top" id="mapLabelsTop">
+                                <!-- 1-16 のラベル（JavaScriptで生成） -->
+                            </div>
+                            <div class="map-body-row">
+                                <div class="map-labels-left" id="mapLabelsLeft">
+                                    <!-- A-L のラベル（JavaScriptで生成） -->
+                                </div>
+                                <table class="town-map" id="townMap">
+                                    <!-- JavaScriptで生成 -->
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- つぶやきビュー -->
+                <div id="tweetView" style="display: none;">
+                    <div class="action-view-header">
+                        <button class="btn-back" onclick="backToMap()">← マップに戻る</button>
+                    </div>
+                    <div class="tweet-compose-content">
+                        <div class="tweet-compose-header">
+                            <span class="tweet-compose-avatar" id="tweetComposeAvatar">😊</span>
+                            <span class="tweet-compose-name" id="tweetComposeName">のん</span>
+                        </div>
+                        <textarea id="tweetInput" class="tweet-input" placeholder="いまどうしてる？（60文字まで）" maxlength="60"></textarea>
+                        <div class="tweet-compose-footer">
+                            <span class="tweet-char-count"><span id="tweetCharCount">0</span>/60</span>
+                            <button class="btn btn-primary" id="tweetSubmitBtn" onclick="submitTweet()">つぶやく</button>
+                        </div>
+                        <p class="tweet-cooldown-msg" id="tweetCooldownMsg" style="display: none;">
+                            次につぶやきができるまであと <span id="tweetCooldownTime">10:00</span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- アクションビュー（施設クリック時に表示） -->
+                <div id="actionView" style="display: none;">
+                    <div class="action-view-header">
+                        <button class="btn-back" onclick="backToMap()">← マップに戻る</button>
+                        <h2 id="actionViewTitle">🏠 施設名</h2>
+                    </div>
+                    <div class="action-view-content">
+                        <p class="action-view-desc" id="actionViewDesc">施設の説明</p>
+                        <!-- ジム専用テーブル -->
+                        <div id="gymTableArea" style="display: none;">
+                            <div class="gym-table-container">
+                                <table class="gym-table">
+                                    <thead>
+                                        <tr class="gym-header-group">
+                                            <th rowspan="2">メニュー</th>
+                                            <th colspan="7">アップする能力値
+                                                <span class="gym-hatena-wrapper">
+                                                    <img src="status/hatena.png" alt="?" class="gym-hatena-icon">
+                                                    <span class="gym-hatena-tooltip">体＝体力　気＝気力　ル＝ルックス　素＝素早さ　面＝面白さ　優＝優しさ　エ＝エロさ</span>
+                                                </span>
+                                            </th>
+                                            <th rowspan="2">体格<br>指数</th>
+                                            <th rowspan="2">金額</th>
+                                            <th rowspan="2">身体<br>消費</th>
+                                        </tr>
+                                        <tr class="gym-header-sub">
+                                            <th>体</th>
+                                            <th>気</th>
+                                            <th>ル</th>
+                                            <th>素</th>
+                                            <th>面</th>
+                                            <th>優</th>
+                                            <th>エ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="gymTableBody">
+                                        <!-- JavaScriptで動的に生成 -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <button class="btn btn-primary gym-train-btn" onclick="doGymTraining()">トレーニングする</button>
+                        </div>
+                        <!-- 習い事スクール専用テーブル -->
+                        <div id="schoolTableArea" style="display: none;">
+                            <div class="gym-table-container">
+                                <table class="gym-table">
+                                    <thead>
+                                        <tr class="gym-header-group">
+                                            <th rowspan="2">メニュー</th>
+                                            <th colspan="7">アップする能力値
+                                                <span class="gym-hatena-wrapper">
+                                                    <img src="status/hatena.png" alt="?" class="school-hatena-icon gym-hatena-icon">
+                                                    <span class="gym-hatena-tooltip school-hatena-tooltip">国＝国語　数＝数学　理＝理科　社＝社会　英＝英語　音＝音楽　美＝美術</span>
+                                                </span>
+                                            </th>
+                                            <th rowspan="2">金額</th>
+                                            <th rowspan="2">頭脳<br>消費</th>
+                                        </tr>
+                                        <tr class="gym-header-sub">
+                                            <th>国</th>
+                                            <th>数</th>
+                                            <th>理</th>
+                                            <th>社</th>
+                                            <th>英</th>
+                                            <th>音</th>
+                                            <th>美</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="schoolTableBody">
+                                        <!-- JavaScriptで動的に生成 -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <button class="btn gym-train-btn school-train-btn" onclick="doSchoolLesson()">レッスンを受ける</button>
+                        </div>
+                        <div class="action-buttons" id="actionButtons">
+                            <!-- JavaScriptで生成 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 習い事スクール結果画面 -->
+                <div id="schoolResultView" style="display: none;">
+                    <div class="action-view-header">
+                        <button class="btn-back" onclick="backToMap()">← マップに戻る</button>
+                    </div>
+                    <div class="gym-result-content school-result-content">
+                        <p id="schoolResultMessage" class="gym-result-message school-result-message"></p>
+                        <div id="schoolResultStats" class="gym-result-stats"></div>
+                        <div class="gym-result-buttons">
+                            <button class="btn school-ok-btn" onclick="backToMap()">OK</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ジムトレーニング結果画面 -->
+                <div id="gymResultView" style="display: none;">
+                    <div class="action-view-header">
+                        <button class="btn-back" onclick="backToMap()">← マップに戻る</button>
+                    </div>
+                    <div class="gym-result-content">
+                        <p id="gymResultMessage" class="gym-result-message"></p>
+                        <div id="gymResultStats" class="gym-result-stats"></div>
+                        <div class="gym-result-buttons">
+                            <button class="btn gym-ok-btn" onclick="backToMap()">OK</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 銀行お預け画面 -->
+                <div id="bankDepositView" style="display: none;">
+                    <div class="action-view-header">
+                        <button class="btn-back" onclick="backToBankMenu()">← 戻る</button>
+                    </div>
+                    <div class="bank-content">
+                        <p class="bank-main-text">お預入れの金額をご指定ください。</p>
+                        <p class="bank-note-text">※普通口座にお金を入れておくと、1日1回0.5％の利息がつきます。<br>家のお賽銭や、お店の商品が売れたときの入金先としても利用されます。</p>
+                        <div class="bank-line"></div>
+                        <div class="bank-info">
+                            <p>所持金　：<span id="depositCurrentMoney">0</span>円</p>
+                            <p>預金残高：<span id="depositCurrentSavings">0</span>円</p>
+                        </div>
+                        <div class="bank-line"></div>
+                        <div class="bank-input-area">
+                            <div class="bank-input-row">
+                                <input type="number" id="depositAmount" min="0" step="100" placeholder="0">
+                                <span class="bank-input-unit">円</span>
+                                <button class="btn btn-success" onclick="confirmDeposit()">預ける</button>
+                            </div>
+                        </div>
+                        <div class="bank-input-area">
+                            <div class="bank-input-row">
+                                <select id="depositKeepAmount">
+                                    <option value="10000">1万円残して</option>
+                                    <option value="100000">10万円残して</option>
+                                    <option value="300000">30万円残して</option>
+                                    <option value="500000">50万円残して</option>
+                                    <option value="1000000">100万円残して</option>
+                                    <option value="10000000">1000万円残して</option>
+                                    <option value="0">全額</option>
+                                </select>
+                                <button class="btn btn-success" onclick="depositKeepAmount()">預ける</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 銀行お預け完了画面 -->
+                <div id="bankDepositCompleteView" style="display: none;">
+                    <div class="action-view-header">
+                        <button class="btn-back" onclick="backToBankMenu()">← 戻る</button>
+                    </div>
+                    <div class="bank-content">
+                        <p class="bank-complete-message"><span id="depositCompleteAmount">0</span>円預けました。</p>
+                        <div class="bank-info no-top-padding">
+                            <p>所持金　：<span id="depositCompleteMoney">0</span>円</p>
+                            <p>預金残高：<span id="depositCompleteSavings">0</span>円</p>
+                        </div>
+                        <div class="bank-buttons">
+                            <button class="btn btn-success" onclick="backToMap()">OK</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 銀行お引き出し画面 -->
+                <div id="bankWithdrawView" style="display: none;">
+                    <div class="action-view-header">
+                        <button class="btn-back" onclick="backToBankMenu()">← 戻る</button>
+                    </div>
+                    <div class="bank-content">
+                        <p class="bank-main-text">お引き出しの金額をご指定ください。</p>
+                        <p class="bank-note-text">※普通口座にお金を入れておくと、1日1回0.5％の利息がつきます。<br>家のお賽銭や、お店の商品が売れたときの入金先としても利用されます。</p>
+                        <div class="bank-line"></div>
+                        <div class="bank-info">
+                            <p>所持金　：<span id="withdrawCurrentMoney">0</span>円</p>
+                            <p>預金残高：<span id="withdrawCurrentSavings">0</span>円</p>
+                        </div>
+                        <div class="bank-line"></div>
+                        <div class="bank-input-area">
+                            <div class="bank-input-row">
+                                <input type="number" id="withdrawAmount" min="0" step="100" placeholder="0">
+                                <span class="bank-input-unit">円</span>
+                                <button class="btn btn-success" onclick="confirmWithdraw()">引き出す</button>
+                            </div>
+                        </div>
+                        <div class="bank-input-area">
+                            <div class="bank-input-row">
+                                <select id="withdrawFixedAmount">
+                                    <option value="10000">1万円</option>
+                                    <option value="100000">10万円</option>
+                                    <option value="300000">30万円</option>
+                                    <option value="500000">50万円</option>
+                                    <option value="1000000">100万円</option>
+                                    <option value="10000000">1000万円</option>
+                                    <option value="all">全額</option>
+                                </select>
+                                <button class="btn btn-success" onclick="withdrawFixedAmount()">引き出す</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 銀行お引き出し完了画面 -->
+                <div id="bankWithdrawCompleteView" style="display: none;">
+                    <div class="action-view-header">
+                        <button class="btn-back" onclick="backToBankMenu()">← 戻る</button>
+                    </div>
+                    <div class="bank-content">
+                        <p class="bank-complete-message"><span id="withdrawCompleteAmount">0</span>円引き出しました。</p>
+                        <div class="bank-info no-top-padding">
+                            <p>所持金　：<span id="withdrawCompleteMoney">0</span>円</p>
+                            <p>預金残高：<span id="withdrawCompleteSavings">0</span>円</p>
+                        </div>
+                        <div class="bank-buttons">
+                            <button class="btn btn-success" onclick="backToMap()">OK</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 銀行お振り込み画面 -->
+                <div id="bankTransferView" style="display: none;">
+                    <div class="action-view-header">
+                        <button class="btn-back" onclick="backToBankMenu()">← 戻る</button>
+                    </div>
+                    <div class="bank-content">
+                        <p class="bank-main-text">お振込み先をご指定ください。</p>
+                        <p class="bank-note-text">タウンの参加者名を入力して送金することができます。<br>お金は普通口座より引き落とされます。</p>
+                        <div class="bank-line"></div>
+                        <div class="bank-info">
+                            <p>預金残高：<span id="transferCurrentSavings">0</span>円</p>
+                        </div>
+                        <div class="bank-line"></div>
+                        <div class="bank-input-area">
+                            <label for="transferName" class="bank-transfer-label">振込先のお名前</label>
+                            <div class="bank-input-row">
+                                <input type="text" id="transferName" style="text-align: left;">
+                            </div>
+                        </div>
+                        <div class="bank-input-area">
+                            <label for="transferAmount" class="bank-transfer-label">振り込み金額</label>
+                            <div class="bank-input-row">
+                                <input type="number" id="transferAmount" min="0" step="100" placeholder="0">
+                                <span class="bank-input-unit">円</span>
+                            </div>
+                        </div>
+                        <p class="bank-error-message" id="transferErrorMessage" style="display: none;"></p>
+                        <div class="bank-buttons">
+                            <button class="btn btn-success" onclick="showTransferConfirm()">確認画面へ</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 銀行お振り込み確認画面 -->
+                <div id="bankTransferConfirmView" style="display: none;">
+                    <div class="action-view-header">
+                        <button class="btn-back" onclick="backToTransferInput()">← 戻る</button>
+                    </div>
+                    <div class="bank-content">
+                        <p class="bank-main-text">こちらの内容でよろしいでしょうか？</p>
+                        <div class="bank-line"></div>
+                        <div class="transfer-confirm-info">
+                            <div class="transfer-target">
+                                <div class="transfer-target-avatar" id="transferTargetAvatar">😊</div>
+                                <div class="transfer-target-details">
+                                    <p class="transfer-target-name" id="transferTargetName">名前</p>
+                                    <p class="transfer-target-job" id="transferTargetJob">職業</p>
+                                </div>
+                            </div>
+                            <div class="transfer-amount-display">
+                                <p>振込金額：<span id="transferConfirmAmount">0</span>円</p>
+                            </div>
+                        </div>
+                        <div class="bank-line"></div>
+                        <div class="bank-info">
+                            <p>預金残高：<span id="transferConfirmSavings">0</span>円</p>
+                        </div>
+                        <div class="bank-buttons">
+                            <button class="btn btn-success" onclick="confirmTransfer()">お振り込み</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 銀行入出金明細画面 -->
+                <div id="bankHistoryView" style="display: none;">
+                    <div class="action-view-header">
+                        <button class="btn-back" onclick="backToBankMenu()">← 戻る</button>
+                    </div>
+                    <div class="bank-content bank-history-content">
+                        <p class="bank-main-text">入出金明細</p>
+                        <p class="bank-note-text">最新100件までのお取引履歴を表示しています。</p>
+                        <div class="bank-history-table-container">
+                            <table class="bank-history-table" id="bankHistoryTable">
+                                <thead>
+                                    <tr>
+                                        <th>日付</th>
+                                        <th>お取引内容</th>
+                                        <th>出金額</th>
+                                        <th>入金額</th>
+                                        <th>差引残高</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bankHistoryTableBody">
+                                    <!-- JavaScriptで生成 -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="bank-history-empty" id="bankHistoryEmpty" style="display: none;">お取引履歴がありません</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- タイトル枠 -->
+            <section class="title-section">
+                <img src="tree_road/hyosiki.png" alt="標識" class="title-icon">
+                <div class="title-text">
+                    <h1 class="game-title">メインタウン</h1>
+                    <p class="game-subtitle">- MAIN TOWN -</p>
+                </div>
+            </section>
+
+            <!-- ステータス -->
+            <section class="status-section">
+                <div class="status-card">
+                    <!-- プレイヤー情報 -->
+                    <div class="player-info">
+                        <div class="player-avatar" id="playerAvatar" onclick="openAvatarModal()">😊</div>
+                        <div class="player-details">
+                            <div class="player-name-container">
+                                <span class="player-name" id="playerName">のん</span>
+                            </div>
+                            <div class="player-job-container">
+                                <span class="player-job" id="playerJob">無職</span>
+                                <span class="player-job-level" id="playerJobLevel"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- アクションアイコン -->
+                    <div class="action-icons">
+                        <button class="action-icon" onclick="refreshGame()"><img src="status/status1.png" alt="更新" class="action-icon-img"></button>
+                        <button class="action-icon" onclick="openTweetModal()"><img src="status/status2.png" alt="つぶやき" class="action-icon-img"></button>
+                        <button class="action-icon" onclick="openInventoryModal()"><img src="status/status3.png" alt="所持品" class="action-icon-img"></button>
+                        <button class="action-icon" onclick="openDMModal()"><img src="status/status4.png" alt="DM" class="action-icon-img"></button>
+                        <button class="action-icon" onclick="openFriendModal()"><img src="status/status5.png" alt="友人" class="action-icon-img"></button>
+                        <button class="action-icon" onclick="saveGame()"><img src="status/status6.png" alt="保存" class="action-icon-img"></button>
+                    </div>
+
+                    <!-- ランダムイベント通知 -->
+                    <div id="randomEventNotification" class="random-event-notification" style="display: none;">
+                        <span id="randomEventText"></span>
+                    </div>
+
+                    <!-- 基本情報 -->
+                    <div class="status-group">
+                        <div class="status-group-title">財務ステータス</div>
+                        <div class="status-item">
+                            <span class="status-label">所持金</span>
+                            <span class="status-value"><span id="money">1000</span>円</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">総資産</span>
+                            <span class="status-value small"><span id="totalAssets">1000</span>円</span>
+                        </div>
+                    </div>
+
+                    <!-- 身体ステータス -->
+                    <div class="status-group">
+                        <div class="status-group-title">身体ステータス</div>
+                        <div class="status-item">
+                            <span class="status-label">身体パワー</span>
+                            <div class="status-bar-container">
+                                <div class="status-bar health-bar" id="healthBar"></div>
+                                <span class="status-bar-text"><span id="health">100</span>/100</span>
+                            </div>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">頭脳パワー</span>
+                            <div class="status-bar-container">
+                                <div class="status-bar intelligence-bar" id="intelligenceBar"></div>
+                                <span class="status-bar-text"><span id="intelligence">50</span>/100</span>
+                            </div>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">空腹度</span>
+                            <span class="status-value"><span id="hungerText">普通</span></span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">コンディション</span>
+                            <span class="status-value"><span id="condition">良好</span></span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">身長</span>
+                            <span class="status-value"><span id="height">173</span>cm</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">体重</span>
+                            <span class="status-value"><span id="weight">54.2</span>kg</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">体格指数(BMI)</span>
+                            <span class="status-value"><span id="bodyFat">18.1</span> <span class="body-fat-label" id="bodyFatLabel">普通</span></span>
+                        </div>
+                    </div>
+
+                </div>
+
+            </section>
+        </main>
+
+    </div>
+
+    <!-- 商店モーダル -->
+    <div class="modal" id="shopModal">
+        <div class="modal-content shop-modal-content">
+            <div class="shop-header">
+                <h3 class="shop-title" id="shopTitle">デパートの品揃えは毎日変わります。ぜひ見ていってくださいね！</h3>
+                <div class="shop-money" id="shopMoney">所持金：0円</div>
+            </div>
+
+            <!-- 商品一覧ビュー -->
+            <div id="shopListView">
+                <div class="shop-table-container">
+                    <table class="shop-table gym-table" id="shopTable">
+                        <thead>
+                            <tr class="gym-header-group">
+                                <th rowspan="2">商品名</th>
+                                <th colspan="14">アップする能力値
+                                    <span class="gym-hatena-wrapper">
+                                        <img src="status/hatena.png" alt="?" class="gym-hatena-icon">
+                                        <span class="gym-hatena-tooltip">国＝国語　数＝数学　理＝理科　社＝社会　英＝英語　音＝音楽　美＝美術　体＝体力　気＝気力　ル＝ルックス　素＝素早さ　面＝面白さ　優＝優しさ　エ＝エロさ</span>
+                                    </span>
+                                </th>
+                                <th rowspan="2">カロ<br>リー</th>
+                                <th rowspan="2">使用<br>回数</th>
+                                <th rowspan="2">使用<br>間隔</th>
+                                <th rowspan="2">身体<br>消費</th>
+                                <th rowspan="2">頭脳<br>消費</th>
+                                <th rowspan="2">備考</th>
+                                <th rowspan="2">価格</th>
+                                <th rowspan="2">在庫</th>
+                            </tr>
+                            <tr class="gym-header-sub">
+                                <th>国</th>
+                                <th>数</th>
+                                <th>理</th>
+                                <th>社</th>
+                                <th>英</th>
+                                <th>音</th>
+                                <th>美</th>
+                                <th>体</th>
+                                <th>気</th>
+                                <th>ル</th>
+                                <th>素</th>
+                                <th>面</th>
+                                <th>優</th>
+                                <th>エ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="shopTableBody">
+                            <!-- JavaScriptで生成（能力値行 + 商品行） -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="confirm-buttons">
+                    <button class="btn board-btn-confirm" id="shopPurchaseBtn" onclick="purchaseSelectedItems()" disabled>購入する</button>
+                    <button class="btn board-btn-back" onclick="closeShop()">閉じる</button>
+                </div>
+            </div>
+
+            <!-- 購入確認ビュー -->
+            <div id="shopConfirmView" style="display: none;">
+                <div class="purchase-confirm-content">
+                    <p class="confirm-heading">こちらの商品でよろしいでしょうか？</p>
+                    <p class="confirm-money" id="confirmCurrentMoney">現在の所持金：0円</p>
+                    <div class="confirm-items" id="confirmItemsList">
+                        <!-- JavaScriptで生成 -->
+                    </div>
+                    <div class="confirm-total">
+                        <span>合計金額：</span>
+                        <span class="total-price" id="confirmTotalPrice">0円</span>
+                    </div>
+                </div>
+                <div class="confirm-buttons">
+                    <button class="btn board-btn-confirm" onclick="confirmPurchase()">購入する</button>
+                    <button class="btn board-btn-back" onclick="backToShopList()">戻る</button>
+                </div>
+            </div>
+
+            <!-- 所持金不足ビュー -->
+            <div id="shopNoMoneyView" style="display: none;">
+                <div class="no-money-content">
+                    <p class="no-money-error">ERROR！</p>
+                    <p class="no-money-message">お客様、所持金が足りないようです...。</p>
+                    <div class="no-money-details">
+                        <div class="no-money-row">
+                            <span class="no-money-label">現在の所持金</span>
+                            <span class="no-money-colon">：</span>
+                            <span class="no-money-value" id="noMoneyCurrentMoney">0円</span>
+                        </div>
+                        <div class="no-money-row">
+                            <span class="no-money-label">合計金額　　</span>
+                            <span class="no-money-colon">：</span>
+                            <span class="no-money-value" id="noMoneyTotalPrice">0円</span>
+                        </div>
+                    </div>
+                    <div class="no-money-shortage-wrap">
+                    <div class="no-money-shortage">
+                        <span class="no-money-label">不足金額　　</span>
+                        <span class="no-money-colon">：</span>
+                        <span class="no-money-shortage-value" id="noMoneyShortage">0円</span>
+                    </div>
+                    </div>
+                </div>
+                <div class="confirm-buttons">
+                    <button class="btn board-btn-back" onclick="backToShopList()">戻る</button>
+                </div>
+            </div>
+
+            <!-- 購入完了ビュー -->
+            <div id="shopCompleteView" style="display: none;">
+                <div class="purchase-complete-content">
+                    <p class="complete-heading">お買い上げありがとうございます！</p>
+                    <p class="complete-subheading">またお越しくださいませ。</p>
+                    <p class="complete-label">【ご購入品】</p>
+                    <div class="complete-items" id="completeItemsList">
+                        <!-- JavaScriptで生成 -->
+                    </div>
+                </div>
+                <div class="confirm-buttons">
+                    <button class="btn board-btn-confirm" onclick="closeShopAndOpenInventory()">所持品を見る</button>
+                    <button class="btn board-btn-back" onclick="closeShop()">閉じる</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 食堂モーダル -->
+    <div class="modal" id="shokudoModal">
+        <div class="modal-content shop-modal-content">
+            <div class="shop-header">
+                <h3 class="shop-title" id="shokudoTitle">いらっしゃいませ！何を食べますか？</h3>
+                <div class="shop-money" id="shokudoMoney">所持金：0円</div>
+            </div>
+
+            <!-- メニュー一覧ビュー -->
+            <div id="shokudoListView">
+                <div class="shop-table-container">
+                    <table class="shop-table gym-table" id="shokudoTable">
+                        <thead>
+                            <tr class="gym-header-group">
+                                <th rowspan="2">商品名</th>
+                                <th colspan="14">アップする能力値
+                                    <span class="gym-hatena-wrapper">
+                                        <img src="status/hatena.png" alt="?" class="gym-hatena-icon">
+                                        <span class="gym-hatena-tooltip">国＝国語　数＝数学　理＝理科　社＝社会　英＝英語　音＝音楽　美＝美術　体＝体力　気＝気力　ル＝ルックス　素＝素早さ　面＝面白さ　優＝優しさ　エ＝エロさ</span>
+                                    </span>
+                                </th>
+                                <th rowspan="2">カロ<br>リー</th>
+                                <th rowspan="2">使用<br>回数</th>
+                                <th rowspan="2">備考</th>
+                                <th rowspan="2">価格</th>
+                                <th rowspan="2">在庫</th>
+                            </tr>
+                            <tr class="gym-header-sub">
+                                <th>国</th>
+                                <th>数</th>
+                                <th>理</th>
+                                <th>社</th>
+                                <th>英</th>
+                                <th>音</th>
+                                <th>美</th>
+                                <th>体</th>
+                                <th>気</th>
+                                <th>ル</th>
+                                <th>素</th>
+                                <th>面</th>
+                                <th>優</th>
+                                <th>エ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="shokudoTableBody">
+                            <!-- JavaScriptで生成 -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="confirm-buttons">
+                    <button class="btn board-btn-confirm" id="shokudoPurchaseBtn" onclick="purchaseShokudoItems()" disabled>注文する</button>
+                    <button class="btn board-btn-back" onclick="closeShokudo()">閉じる</button>
+                </div>
+            </div>
+
+            <!-- 注文確認ビュー -->
+            <div id="shokudoConfirmView" style="display: none;">
+                <div class="purchase-confirm-content">
+                    <p class="confirm-heading">こちらの注文でよろしいでしょうか？</p>
+                    <p class="confirm-money" id="shokudoConfirmCurrentMoney">現在の所持金：0円</p>
+                    <div class="confirm-items" id="shokudoConfirmItemsList">
+                        <!-- JavaScriptで生成 -->
+                    </div>
+                    <div class="confirm-total">
+                        <span>合計金額：</span>
+                        <span class="total-price" id="shokudoConfirmTotalPrice">0円</span>
+                    </div>
+                </div>
+                <div class="confirm-buttons">
+                    <button class="btn board-btn-confirm" onclick="confirmShokudoPurchase()">注文する</button>
+                    <button class="btn board-btn-back" onclick="backToShokudoList()">戻る</button>
+                </div>
+            </div>
+
+            <!-- 所持金不足ビュー -->
+            <div id="shokudoNoMoneyView" style="display: none;">
+                <div class="no-money-content">
+                    <p class="no-money-error">ERROR！</p>
+                    <p class="no-money-message">お客様、所持金が足りないようです...。</p>
+                    <div class="no-money-details">
+                        <div class="no-money-row">
+                            <span class="no-money-label">現在の所持金</span>
+                            <span class="no-money-colon">：</span>
+                            <span class="no-money-value" id="shokudoNoMoneyCurrentMoney">0円</span>
+                        </div>
+                        <div class="no-money-row">
+                            <span class="no-money-label">合計金額　　</span>
+                            <span class="no-money-colon">：</span>
+                            <span class="no-money-value" id="shokudoNoMoneyTotalPrice">0円</span>
+                        </div>
+                    </div>
+                    <div class="no-money-shortage-wrap">
+                    <div class="no-money-shortage">
+                        <span class="no-money-label">不足金額　　</span>
+                        <span class="no-money-colon">：</span>
+                        <span class="no-money-shortage-value" id="shokudoNoMoneyShortage">0円</span>
+                    </div>
+                    </div>
+                </div>
+                <div class="confirm-buttons">
+                    <button class="btn board-btn-back" onclick="backToShokudoList()">戻る</button>
+                </div>
+            </div>
+
+            <!-- 満腹エラービュー -->
+            <div id="shokudoFullView" style="display: none;">
+                <div class="no-money-content">
+                    <p class="no-money-error">ERROR！</p>
+                    <p class="no-money-message">満腹のため、まだ食事できません。</p>
+                </div>
+                <div class="confirm-buttons">
+                    <button class="btn board-btn-back" onclick="backToShokudoList()">戻る</button>
+                </div>
+            </div>
+
+            <!-- 注文完了ビュー -->
+            <div id="shokudoCompleteView" style="display: none;">
+                <div class="purchase-complete-content">
+                    <p class="complete-heading" id="shokudoCompleteHeading">お買い上げありがとうございます！</p>
+                    <p class="complete-subheading" id="shokudoCompleteSubheading">またお越しくださいませ。</p>
+                    <p class="complete-label" id="shokudoCompleteLabel">【お持ち帰り品】</p>
+                    <div class="complete-items" id="shokudoCompleteItemsList">
+                        <!-- JavaScriptで生成 -->
+                    </div>
+                </div>
+                <div class="confirm-buttons">
+                    <button class="btn board-btn-confirm" id="shokudoCompleteInventoryBtn" onclick="closeShokudoAndOpenInventory()">所持品を見る</button>
+                    <button class="btn board-btn-back" id="shokudoCompleteCloseBtn" onclick="closeShokudo()">閉じる</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 売却モーダル -->
+    <div class="modal" id="sellModal">
+        <div class="modal-content shop-modal-content">
+            <div class="shop-header">
+                <h3 class="shop-title" id="sellTitle">何を売りますか？</h3>
+                <div class="shop-money" id="sellMoney">所持金：0円</div>
+            </div>
+
+            <!-- 売却リストビュー -->
+            <div id="sellListView">
+                <div class="shop-table-container">
+                    <table class="shop-table gym-table" id="sellTable">
+                        <thead>
+                            <tr class="gym-header-group">
+                                <th rowspan="2">商品名</th>
+                                <th colspan="14">能力値
+                                    <span class="gym-hatena-wrapper">
+                                        <img src="status/hatena.png" alt="?" class="gym-hatena-icon">
+                                        <span class="gym-hatena-tooltip">国＝国語　数＝数学　理＝理科　社＝社会　英＝英語　音＝音楽　美＝美術　体＝体力　気＝気力　ル＝ルックス　素＝素早さ　面＝面白さ　優＝優しさ　エ＝エロさ</span>
+                                    </span>
+                                </th>
+                                <th rowspan="2">カロ<br>リー</th>
+                                <th rowspan="2">使用<br>回数</th>
+                                <th rowspan="2">使用<br>間隔</th>
+                                <th rowspan="2">身体<br>消費</th>
+                                <th rowspan="2">頭脳<br>消費</th>
+                                <th rowspan="2">売却価格</th>
+                            </tr>
+                            <tr class="gym-header-sub">
+                                <th>国</th>
+                                <th>数</th>
+                                <th>理</th>
+                                <th>社</th>
+                                <th>英</th>
+                                <th>音</th>
+                                <th>美</th>
+                                <th>体</th>
+                                <th>気</th>
+                                <th>ル</th>
+                                <th>素</th>
+                                <th>面</th>
+                                <th>優</th>
+                                <th>エ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sellTableBody">
+                            <!-- JavaScriptで生成 -->
+                        </tbody>
+                    </table>
+                </div>
+                <p class="inventory-empty" id="sellEmpty" style="display: none;">売却できるアイテムがありません</p>
+                <div class="shop-modal-buttons">
+                    <button class="btn btn-disabled" id="sellButton" onclick="sellSelectedItems()" disabled>売却する</button>
+                    <button class="btn btn-close" onclick="closeSellShop()">閉じる</button>
+                </div>
+            </div>
+
+            <!-- 売却完了ビュー -->
+            <div id="sellCompleteView" style="display: none;">
+                <div class="purchase-complete-content">
+                    <p class="complete-message">売却しました！</p>
+                    <div class="complete-items" id="sellCompleteItemsList">
+                        <!-- JavaScriptで生成 -->
+                    </div>
+                    <p class="complete-money">所持金：<span id="sellCompleteRemainingMoney">0円</span></p>
+                </div>
+                <div class="shop-modal-buttons">
+                    <button class="btn btn-close" onclick="closeSellShop()">閉じる</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- アバター選択モーダル -->
+    <div class="modal" id="avatarModal">
+        <div class="modal-content">
+            <h3>🎭 アイコンを選んでね</h3>
+            <p>好きなアイコンをクリック！</p>
+            <div class="avatar-grid" id="avatarGrid">
+                <!-- JavaScriptで生成 -->
+            </div>
+            <div class="avatar-bg-color-section">
+                <p>背景色を選んでね</p>
+                <input type="color" id="avatarBgColor" value="#FFB6C1" onchange="changeAvatarBgColor(this.value)">
+            </div>
+            <button class="btn btn-close" onclick="closeAvatarModal()">閉じる</button>
+        </div>
+    </div>
+
+    <!-- 名前変更モーダル -->
+    <div class="modal" id="nameModal">
+        <div class="modal-content">
+            <h3>✏️ 名前を変更</h3>
+            <p>新しい名前を入力してね</p>
+            <input type="text" id="nameInput" class="name-input" maxlength="10" placeholder="名前を入力...">
+            <div class="modal-buttons">
+                <button class="btn btn-success" onclick="saveName()">決定</button>
+                <button class="btn btn-close" onclick="closeNameModal()">キャンセル</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 所持品モーダル -->
+    <div class="modal" id="inventoryModal">
+        <div class="modal-content inventory-modal-content shop-modal-content">
+            <h3 id="inventoryTitle">所持品リスト</h3>
+
+            <!-- 所持品一覧ビュー -->
+            <div id="inventoryListView">
+                <div class="inventory-table-container">
+                    <table class="inventory-table shop-table gym-table" id="inventoryTable">
+                        <thead>
+                            <tr class="gym-header-group">
+                                <th rowspan="2">商品名</th>
+                                <th colspan="14">アップする能力値
+                                    <span class="gym-hatena-wrapper">
+                                        <img src="status/hatena.png" alt="?" class="gym-hatena-icon">
+                                        <span class="gym-hatena-tooltip">国＝国語　数＝数学　理＝理科　社＝社会　英＝英語　音＝音楽　美＝美術　体＝体力　気＝気力　ル＝ルックス　素＝素早さ　面＝面白さ　優＝優しさ　エ＝エロさ</span>
+                                    </span>
+                                </th>
+                                <th rowspan="2">カロ<br>リー</th>
+                                <th rowspan="2">使用<br>間隔</th>
+                                <th rowspan="2">身体<br>消費</th>
+                                <th rowspan="2">頭脳<br>消費</th>
+                                <th rowspan="2">備考</th>
+                                <th rowspan="2">購入<br>日</th>
+                                <th rowspan="2">残り</th>
+                            </tr>
+                            <tr class="gym-header-sub">
+                                <th>国</th>
+                                <th>数</th>
+                                <th>理</th>
+                                <th>社</th>
+                                <th>英</th>
+                                <th>音</th>
+                                <th>美</th>
+                                <th>体</th>
+                                <th>気</th>
+                                <th>ル</th>
+                                <th>素</th>
+                                <th>面</th>
+                                <th>優</th>
+                                <th>エ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventoryTableBody">
+                            <!-- JavaScriptで生成 -->
+                        </tbody>
+                    </table>
+                </div>
+                <p class="inventory-empty" id="inventoryEmpty">所持品がありません</p>
+                <div class="confirm-buttons">
+                    <button class="btn board-btn-confirm" id="inventoryUseBtn" onclick="useSelectedInventoryItem()" disabled>使う</button>
+                    <button class="btn board-btn-back" onclick="closeInventoryModal()">閉じる</button>
+                </div>
+            </div>
+
+            <!-- 満腹エラービュー -->
+            <div id="inventoryFullView" style="display: none;">
+                <div class="no-money-content">
+                    <p class="no-money-message">満腹のため、まだ食事できません。</p>
+                </div>
+                <div class="inventory-modal-buttons">
+                    <button class="btn btn-success" onclick="backToInventoryList()">OK</button>
+                </div>
+            </div>
+
+            <!-- アイテム使用結果ビュー -->
+            <div id="itemUsedView" style="display: none;">
+                <div class="purchase-complete-content">
+                    <div id="itemUsedMessage">
+                        <!-- JavaScriptで生成 -->
+                    </div>
+                    <div id="itemUsedStats">
+                        <!-- JavaScriptで生成 -->
+                    </div>
+                </div>
+                <div class="confirm-buttons">
+                    <button class="btn board-btn-confirm" onclick="backToInventoryList()">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 掲示板モーダル -->
+    <div class="modal" id="boardModal">
+        <div class="modal-content board-modal-content">
+            <!-- 閉じるボタン（右上） -->
+            <button class="board-close-btn" onclick="closeBoard()">×</button>
+            <!-- ヘッダー（常に表示） -->
+            <div class="board-header" id="boardHeader">
+                <h2 class="board-title">ギモン解決！BBS</h2>
+                <p class="board-description">みんなのギモンを解決するための掲示板です。<br>わからないことがあれば、この掲示板で聞いてみましょう！</p>
+            </div>
+
+            <!-- メインビュー（一覧表示） -->
+            <div class="board-main-view" id="boardMainView">
+                <div class="board-top">
+                    <button class="btn board-new-post-btn" onclick="openNewPostForm()">新規投稿</button>
+                </div>
+                <div class="board-bottom">
+                <div class="board-bottom-left">
+                    <div class="board-post-list" id="boardPostList">
+                        <!-- JavaScriptで生成 -->
+                    </div>
+                </div>
+                <div class="board-bottom-right">
+                    <div class="board-category">
+                        <div class="board-category-title">カテゴリ一覧</div>
+                        <div class="board-category-line"></div>
+                        <ul class="board-category-list">
+                            <li onclick="selectCategory(null)">すべて</li>
+                            <li onclick="selectCategory('趣味')">趣味</li>
+                            <li onclick="selectCategory('暮らし')">暮らし</li>
+                            <li onclick="selectCategory('健康・美容')">健康・美容</li>
+                            <li onclick="selectCategory('仕事')">仕事</li>
+                            <li onclick="selectCategory('人間関係')">人間関係</li>
+                            <li onclick="selectCategory('恋愛')">恋愛</li>
+                            <li onclick="selectCategory('ゲーム')">ゲーム</li>
+                            <li onclick="selectCategory('ファッション')">ファッション</li>
+                            <li onclick="selectCategory('グルメ')">グルメ</li>
+                            <li onclick="selectCategory('トレンド')">トレンド</li>
+                            <li onclick="selectCategory('子育て')">子育て</li>
+                            <li onclick="selectCategory('家電・ガジェット')">家電・ガジェット</li>
+                            <li onclick="selectCategory('学問')">学問</li>
+                            <li onclick="selectCategory('お金')">お金</li>
+                            <li onclick="selectCategory('スポーツ')">スポーツ</li>
+                            <li onclick="selectCategory('乗り物・旅行')">乗り物・旅行</li>
+                            <li onclick="selectCategory('雑談')">雑談</li>
+                            <li onclick="selectCategory('その他')">その他</li>
+                        </ul>
+                    </div>
+                </div>
+                </div>
+            </div>
+
+            <!-- 新規投稿フォーム（非表示） -->
+            <div class="board-new-post-view" id="boardNewPostView" style="display: none;">
+                <div class="board-form-group">
+                    <label class="board-form-label">タイトル</label>
+                    <input type="text" class="board-form-input" id="newPostTitle" placeholder="質問のタイトルを入力..." maxlength="50">
+                </div>
+                <div class="board-form-group">
+                    <label class="board-form-label">カテゴリー（3つまで）</label>
+                    <div class="board-form-categories">
+                        <select class="board-form-select" id="newPostCategory1">
+                            <option value="">選択してください</option>
+                        </select>
+                        <select class="board-form-select" id="newPostCategory2">
+                            <option value="">選択してください</option>
+                        </select>
+                        <select class="board-form-select" id="newPostCategory3">
+                            <option value="">選択してください</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="board-form-group board-form-group-body">
+                    <label class="board-form-label">本文</label>
+                    <textarea class="board-form-textarea" id="newPostBody" placeholder="質問の内容を入力..." maxlength="2000" oninput="updateBodyCharCount()"></textarea>
+                    <div class="board-form-char-count"><span id="bodyCharCount">0</span> / 2000</div>
+                </div>
+                <div class="board-form-buttons">
+                    <button class="btn board-btn-back" onclick="closeNewPostForm()">戻る</button>
+                    <button class="btn board-btn-confirm" onclick="showPostConfirm()">確認画面へ</button>
+                </div>
+            </div>
+
+            <!-- 投稿確認画面（非表示） -->
+            <div class="board-confirm-view" id="boardConfirmView" style="display: none;">
+                <div class="board-confirm-header">
+                    <span class="board-confirm-header-title">投稿内容の確認</span>
+                </div>
+                <div class="board-confirm-content">
+                    <div class="board-confirm-section">
+                        <div class="board-confirm-label">タイトル</div>
+                        <div class="board-confirm-value" id="confirmTitle"></div>
+                    </div>
+                    <div class="board-confirm-divider"></div>
+                    <div class="board-confirm-section">
+                        <div class="board-confirm-label">カテゴリ</div>
+                        <div class="board-confirm-value" id="confirmCategories"></div>
+                    </div>
+                    <div class="board-confirm-divider"></div>
+                    <div class="board-confirm-section">
+                        <div class="board-confirm-label">本文</div>
+                        <div class="board-confirm-value board-confirm-body" id="confirmBody"></div>
+                    </div>
+                </div>
+                <div class="board-confirm-buttons">
+                    <button class="btn board-btn-back" onclick="backToEditForm()">戻る</button>
+                    <button class="btn board-btn-submit" onclick="submitPost()">投稿する</button>
+                </div>
+            </div>
+
+            <!-- 質問閲覧画面（非表示） -->
+            <div class="board-detail-view" id="boardDetailView" style="display: none;">
+                <!-- 上部：戻るボタンとタイトル -->
+                <div class="board-detail-header">
+                    <button class="btn board-btn-back-small" onclick="closeDetailView()">← 戻る</button>
+                    <span class="board-detail-header-title">ギモン解決！BBS</span>
+                </div>
+
+                <!-- 中央：質問内容 -->
+                <div class="board-detail-content">
+                    <!-- 投稿者情報 -->
+                    <div class="board-detail-author-row">
+                        <div class="board-detail-avatar" id="detailAvatar">😊</div>
+                        <div class="board-detail-author-info">
+                            <div class="board-detail-author-name" id="detailAuthorName">のん</div>
+                            <div class="board-detail-meta">
+                                <span class="board-detail-date" id="detailDate">2026/2/4 17:39</span>
+                                <span class="board-detail-separator">|</span>
+                                <span class="board-detail-categories" id="detailCategories">お金 , 仕事 , ゲーム</span>
+                            </div>
+                        </div>
+                        <img class="board-detail-bookmark" id="detailBookmark" src="status/Bookmark_A.png" onclick="toggleBookmark()" alt="ブックマーク">
+                    </div>
+
+                    <!-- タイトル -->
+                    <h3 class="board-detail-title" id="detailTitle">おすすめの稼ぎ方ってありますか？</h3>
+
+                    <!-- 区切り線 -->
+                    <div class="board-detail-divider"></div>
+
+                    <!-- 本文 -->
+                    <div class="board-detail-body" id="detailBody">
+                        ゲームを始めたばかりなのですが、お金がなかなか貯まりません。
+                        みなさんはどうやってお金を稼いでいますか？
+                        おすすめの方法があれば教えてください！
+                    </div>
+
+                    <!-- 回答するボタン -->
+                    <div class="board-detail-answer-btn-area">
+                        <button class="btn board-btn-answer" onclick="toggleAnswerForm()">回答する</button>
+                    </div>
+
+                    <!-- 回答フォーム（非表示） -->
+                    <div class="board-answer-form" id="boardAnswerForm" style="display: none;">
+                        <textarea class="board-answer-textarea" id="answerText" placeholder="回答を入力..." maxlength="1000"></textarea>
+                        <div class="board-answer-buttons">
+                            <button class="btn board-btn-back" onclick="toggleAnswerForm()">キャンセル</button>
+                            <button class="btn board-btn-confirm" onclick="submitAnswer()">回答を投稿</button>
+                        </div>
+                    </div>
+
+                    <!-- 回答一覧（JavaScriptで生成） -->
+                    <div class="board-answers-section" id="boardAnswersSection">
+                        <!-- renderAnswers()で生成 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 温泉施設モーダル（通常風呂） -->
+    <div class="modal" id="onsenModal">
+        <div class="modal-content onsen-modal-content">
+            <div class="onsen-bg-wrapper">
+                <img src="haikei/onsen.png" alt="温泉" class="onsen-bg-img" id="onsenBgImg">
+                <div class="onsen-status-box">
+                    <p class="onsen-status-title">温泉入浴中…</p>
+                    <div class="onsen-status-row">
+                        <span class="onsen-status-label">ただいまの身体パワー</span>
+                        <div class="status-bar-container onsen-bar-container">
+                            <div class="status-bar" id="onsenHealthBar"></div>
+                            <span class="status-bar-text"><span id="onsenHealth">0</span>/<span id="onsenMaxHealth">100</span></span>
+                        </div>
+                    </div>
+                    <div class="onsen-status-row">
+                        <span class="onsen-status-label">ただいまの頭脳パワー</span>
+                        <div class="status-bar-container onsen-bar-container">
+                            <div class="status-bar" id="onsenIntelligenceBar"></div>
+                            <span class="status-bar-text"><span id="onsenIntelligence">0</span>/<span id="onsenMaxIntelligence">100</span></span>
+                        </div>
+                    </div>
+                </div>
+                <button class="bgm-btn" id="bgmBtn" onclick="toggleBgm()"><img src="status/BGM.png" alt="BGM" class="bgm-btn-img"></button>
+                <button class="btn btn-close onsen-close-btn" onclick="closeOnsenModal()">お湯から出る</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 職業安定所モーダル -->
+    <div class="modal" id="helloworkModal">
+        <div class="modal-content hellowork-modal-content">
+            <!-- 上部エリア（左上・右上） -->
+            <div class="hellowork-top">
+                <!-- 左上：説明エリア -->
+                <div class="hellowork-left">
+                    <p class="hellowork-title">ハローワークへようこそ！</p>
+                    <p class="hellowork-description">必要な条件・能力値を満たすと、その職業に就くことができます。<br>なお、転職すると経験値と出勤回数は0からのスタートになります。<br>※職業レベルが15を超えるとマスター扱いとなり、上位職業が解放される場合があります。</p>
+                </div>
+                <!-- 縦の境界線 -->
+                <div class="hellowork-divider"></div>
+                <!-- 右上：就職・目標エリア -->
+                <div class="hellowork-right">
+                    <div class="hellowork-right-columns">
+                        <div class="hellowork-right-col">
+                            <p class="hellowork-available-title">● <span id="helloworkUserName">のん</span>さんが就職可能な職業</p>
+                            <select id="helloworkJobSelect" class="hellowork-job-dropdown">
+                                <option value="">-- 職業を選択 --</option>
+                            </select>
+                        </div>
+                        <div class="hellowork-right-col">
+                            <p class="hellowork-available-title">● <span id="helloworkTargetUserName">のん</span>さんの目標の職業</p>
+                            <div id="targetJobSelectArea">
+                                <select id="targetJobSelect" class="hellowork-job-dropdown">
+                                    <option value="">-- 職業を選択 --</option>
+                                </select>
+                            </div>
+                            <div id="targetJobDisplay" class="target-job-display" style="display:none;">
+                                <span id="targetJobName" class="target-job-name"></span>
+                                <span class="target-job-remove" onclick="removeTargetJob()">&times;</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hellowork-right-buttons">
+                        <button class="btn btn-success" onclick="applyForJob()">この職業に就く</button>
+                        <button class="btn btn-success" onclick="setTargetJob()">この職業を目標にする</button>
+                    </div>
+                </div>
+            </div>
+            <!-- 下部エリア -->
+            <div class="hellowork-bottom" id="helloworkBottom">
+                <div class="hellowork-table-container">
+                    <table class="hellowork-table">
+                        <thead>
+                            <tr class="hellowork-header-group">
+                                <th rowspan="2">職業</th>
+                                <th colspan="14">必要な能力値
+                                    <span class="gym-hatena-wrapper">
+                                        <img src="status/hatena.png" alt="?" class="gym-hatena-icon">
+                                        <span class="gym-hatena-tooltip">国＝国語　数＝数学　理＝理科　社＝社会　英＝英語　音＝音楽　美＝美術　体＝体力　気＝気力　ル＝ルックス　素＝素早さ　面＝面白さ　優＝優しさ　エ＝エロさ</span>
+                                    </span>
+                                </th>
+                                <th colspan="3">条件</th>
+                                <th rowspan="2">給料<br>(1回出勤)</th>
+                                <th rowspan="2">レベルUP<br>ボーナス</th>
+                                <th rowspan="2">身体<br>消費</th>
+                                <th rowspan="2">頭脳<br>消費</th>
+                            </tr>
+                            <tr class="hellowork-header-sub">
+                                <th>国</th>
+                                <th>数</th>
+                                <th>理</th>
+                                <th>社</th>
+                                <th>英</th>
+                                <th>音</th>
+                                <th>美</th>
+                                <th>体</th>
+                                <th>気</th>
+                                <th>ル</th>
+                                <th>素</th>
+                                <th>面</th>
+                                <th>優</th>
+                                <th>エ</th>
+                                <th>体格指数</th>
+                                <th>性別</th>
+                                <th>身長</th>
+                            </tr>
+                        </thead>
+                        <tbody id="helloworkTableBody">
+                            <!-- JavaScriptで動的に生成 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <button class="btn btn-close" onclick="closeHelloworkModal()">閉じる</button>
+
+            <!-- 就職完了ビュー -->
+            <div id="helloworkCompleteView" style="display: none;">
+                <div class="hellowork-complete-content">
+                    <p class="hellowork-complete-message">おめでとうございます！<br><span id="helloworkCompleteJobName">職業名</span>になりました。</p>
+                    <div class="hellowork-complete-details">
+                        <p>一回のお給料が<span id="helloworkCompleteSalary">0</span>円になりました。</p>
+                        <p>レベルアップボーナスが給料×<span id="helloworkCompleteBonus">0</span>倍もらえます。</p>
+                        <p>お仕事がんばっていきましょう！</p>
+                    </div>
+                </div>
+                <div class="hellowork-complete-buttons">
+                    <button class="btn btn-success" onclick="closeHelloworkModal()">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 仕事モーダル -->
+    <div class="modal" id="workModal">
+        <div class="modal-content work-modal-content">
+            <div class="work-result-content">
+                <p class="work-result-message" id="workResultMessage">仕事に出かけました！</p>
+                <div class="work-result-details" id="workResultDetails">
+                    <!-- ここに詳細情報を追加予定 -->
+                </div>
+            </div>
+            <div class="work-modal-buttons">
+                <button class="btn btn-success" onclick="closeWorkModal()">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- トースト通知 -->
+    <div id="toastNotification" class="toast-notification"></div>
+
+    <script src="game.js"></script>
+</body>
+</html>
